@@ -1,0 +1,11 @@
+*.project
+*.classpath
+*.class
+*.jar
+*.zip
+assignments/example/lib_managed/*
+assignments/example/.settings/*
+*/target/*
+*/**/.cache
+*/**/target/
+*/**/.settings
