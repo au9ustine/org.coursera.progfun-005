@@ -86,7 +86,7 @@ class FunSetSuite extends FunSuite {
    * Once you finish your implementation of "singletonSet", exchange the
    * function "ignore" by "test".
    */
-  ignore("singletonSet(1) contains 1") {
+  test("singletonSet(1) contains 1") {
     
     /**
      * We create a new instance of the "TestSets" trait, this gives us access
@@ -98,15 +98,76 @@ class FunSetSuite extends FunSuite {
        * the test fails. This helps identifying which assertion failed.
        */
       assert(contains(s1, 1), "Singleton")
+      assert(contains(s2, 2), "Singleton")
+      assert(contains(s3, 3), "Singleton")
     }
   }
 
-  ignore("union contains all elements") {
+  test("union contains all elements") {
     new TestSets {
       val s = union(s1, s2)
       assert(contains(s, 1), "Union 1")
       assert(contains(s, 2), "Union 2")
       assert(!contains(s, 3), "Union 3")
+    }
+  }
+  
+  test("intersect contains both all elements from s and t") {
+    new TestSets {
+      val su1 = union(s1, s2)
+      val su2 = union(s2, s3)
+      val su3 = union(s1, s3)
+      val r1 = intersect(su1, su2)
+      val r2 = intersect(su1, su3)
+      val r3 = intersect(su2, su3)
+      assert(contains(r1, 2), "Intersect 1")
+      assert(contains(r2, 1), "Intersect 2")
+      assert(contains(r3, 3), "Intersect 3")
+    }
+  }
+  
+  test("diff") {
+    new TestSets {
+      val su1 = union(s1, s2)
+      val su2 = union(s2, s3)
+      val r1 = diff(su1, su2)
+      assert(contains(r1, 1), "s1 should be in su1")
+      assert(!contains(r1, 2), "s2 should not be in su1")
+      assert(!contains(r1, 3), "s3 should not be in su1")
+    }
+  }
+  
+  test("forall") {
+    new TestSets {
+      val su1 = union(s1, s2)
+      val p1 = (x: Int) => x < 2
+      assert(forall(su1, p1) == false, "s1 satisfies while s2 not")
+      val p2 = (x: Int) => x < 3
+      assert(forall(su1, p2) == true, "both s1 s2 satisfy")
+      val p3 = (x: Int) => x > 3
+      assert(forall(su1, p3) == false, "both s1 s2 do not satisfy")
+    }
+  }
+  
+  test("exist") {
+     new TestSets {
+      val su1 = union(s1, s2)
+      val p1 = (x: Int) => x < 2
+      assert(exists(su1, p1) == true, "at least s1 satisfies")
+      val p2 = (x: Int) => x < 3
+      assert(exists(su1, p2) == true, "both s1 s2 satisfy")
+      val p3 = (x: Int) => x > 3
+      assert(exists(su1, p3) == false, "both s1 s2 do not satisfy")
+    }
+  }
+  
+  test("map") {
+    new TestSets {
+      val f = (x: Int) => {x + 1}
+      val su1 = union(s1, s2)
+      val ret = map(su1, f)
+      assert(contains(ret, 2), "1 -> 2")
+      assert(contains(ret, 3), "2 -> 3")
     }
   }
 }
