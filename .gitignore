@@ -9,3 +9,8 @@ assignments/example/.settings/*
 */**/.cache
 */**/target/
 */**/.settings
+*/**/.idea/
+*/**/classes/
+*/**/*.iml
+*/**/out/
+*/**/*.pdf
