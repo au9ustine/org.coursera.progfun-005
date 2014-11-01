@@ -40,7 +40,8 @@ object Anagrams {
   }
 
   /** Converts a sentence into its character occurrence list. */
-  def sentenceOccurrences(s: Sentence): Occurrences = wordOccurrences(s.foldLeft("")(_.concat(_)))
+  def sentenceOccurrences(s: Sentence): Occurrences =
+    wordOccurrences(s.foldLeft("")(_.concat(_)))
 
 
   /** The `dictionaryByOccurrences` is a `Map` from different occurrences to a sequence of all
@@ -63,8 +64,10 @@ object Anagrams {
     case key :: other_keys => {
       val computed_o: Occurrences = wordOccurrences(key)
       ret.get(computed_o) match {
-        case Some(x: List[Word]) => dicByOccHelper(other_keys)(ret ++ Map(computed_o -> (x ::: key :: Nil))) // update
-        case None => dicByOccHelper(other_keys)(ret ++ Map(computed_o -> (key :: Nil))) // create
+        case Some(x: List[Word]) =>
+          dicByOccHelper(other_keys)(ret ++ Map(computed_o -> (x ::: key :: Nil))) // update
+        case None =>
+          dicByOccHelper(other_keys)(ret ++ Map(computed_o -> (key :: Nil))) // create
       }
     }
     case Nil => ret
@@ -72,10 +75,11 @@ object Anagrams {
   lazy val dictionaryByOccurrences: Map[Occurrences, List[Word]] = dictionary.groupBy(x => wordOccurrences(x)) // 1.289s
 
   /** Returns all the anagrams of a given word. */
-  def wordAnagrams(word: Word): List[Word] = dictionaryByOccurrences.get(wordOccurrences(word)) match {
-    case Some(x) => x
-    case None => Nil
-  }
+  def wordAnagrams(word: Word): List[Word] = dictionaryByOccurrences
+    .get(wordOccurrences(word)) match {
+      case Some(x) => x
+      case None => Nil
+    }
 
   /** Returns the list of all subsets of the occurrence list.
    *  This includes the occurrence itself, i.e. `List(('k', 1), ('o', 1))`
@@ -125,7 +129,8 @@ object Anagrams {
    *  Note: the resulting value is an occurrence - meaning it is sorted
    *  and has no zero-entries.
    */
-  def subtract(x: Occurrences, y: Occurrences): Occurrences = x.toSet.diff(y.toSet).toList.sorted
+  def subtract(x: Occurrences, y: Occurrences): Occurrences =
+    x.toSet.diff(y.toSet).toList.sorted
 
 
   /** Returns a list of all anagram sentences of the given sentence.
@@ -176,9 +181,5 @@ object Anagrams {
     println(ret)
     Nil
   }
-//    dictionaryByOccurrences.get(sentenceOccurrences(sentence)) match {
-//      case Some(x) => List(x)
-//      case None => Nil
-//    }
 
 }
