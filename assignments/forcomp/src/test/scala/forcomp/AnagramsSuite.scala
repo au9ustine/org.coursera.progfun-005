@@ -49,7 +49,27 @@ class AnagramsSuite extends FunSuite {
     assert(subtract(lard, r) === lad)
   }
 
+  test("subtract: jimmy - my") {
+    val jimmy = List(('i',1), ('j', 1), ('m', 2), ('y', 1))
+    val my = List(('m', 1), ('y', 1))
+    val expected = List(('i',1), ('j', 1), ('m', 1))
+    assert(subtract(jimmy, my) === expected)
+  }
 
+  test("subtract: jimmy - jimmy") {
+    val jimmy = List(('i',1), ('j', 1), ('m', 2), ('y', 1))
+    val expected = Nil
+    assert(subtract(jimmy, jimmy) === expected)
+  }
+
+  test("subtract: aemnsy - as - en") {
+    val aemnsy = List(('a', 1), ('e', 1), ('m', 1), ('n', 1), ('s', 1), ('y', 1))
+    val as = List(('a', 1), ('s', 1))
+    val ret1 = subtract(aemnsy, as)
+    assert(ret1 === List(('e',1), ('m',1), ('n',1), ('y',1)))
+    val ret2 = subtract(ret1, List(('e', 1), ('n', 1)))
+    assert(ret2 === List(('m', 1), ('y', 1)))
+  }
 
   test("combinations: []") {
     assert(combinations(Nil) === List(Nil))
@@ -72,7 +92,8 @@ class AnagramsSuite extends FunSuite {
   }
 
   test("sentenceAnagram") {
-    sentenceAnagrams(List("Linux", "rulez"))
+    val src = List("Yes", "man")
+    println(sentenceAnagrams(src))
   }
 
   test("sentence anagrams: []") {

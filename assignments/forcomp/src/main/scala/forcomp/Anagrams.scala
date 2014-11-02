@@ -72,7 +72,8 @@ object Anagrams {
     }
     case Nil => ret
   } // 1.27s
-  lazy val dictionaryByOccurrences: Map[Occurrences, List[Word]] = dictionary.groupBy(x => wordOccurrences(x)) // 1.289s
+  lazy val dictionaryByOccurrences: Map[Occurrences, List[Word]] =
+    dictionary.groupBy(x => wordOccurrences(x)) // 1.289s
 
   /** Returns all the anagrams of a given word. */
   def wordAnagrams(word: Word): List[Word] = dictionaryByOccurrences
@@ -110,8 +111,8 @@ object Anagrams {
     s2.size match {
       case 0 => List(Nil)
       case _ => {
-        val s3 = s2.reduce((a,b) => {
-          for(i <- a; j <- b) yield Set(i, j).flatten
+        val s3 = s2.reduceLeft((a,b) => {
+          for(i <- a; j <- b) yield  Set(i, j).flatten
         })
         s3.map(s => s.toList.sorted).toList
       }
@@ -129,8 +130,11 @@ object Anagrams {
    *  Note: the resulting value is an occurrence - meaning it is sorted
    *  and has no zero-entries.
    */
-  def subtract(x: Occurrences, y: Occurrences): Occurrences =
-    x.toSet.diff(y.toSet).toList.sorted
+  def subtract(x: Occurrences, y: Occurrences): Occurrences = {
+    def f(n: Occurrences): String =
+      n.foldLeft("")((a,b) => a + b._1.toString * b._2)
+    wordOccurrences(f(x).diff(f(y)))
+  }
 
 
   /** Returns a list of all anagram sentences of the given sentence.
@@ -174,12 +178,20 @@ object Anagrams {
    *  Note: There is only one anagram of an empty sentence.
    */
   def sentenceAnagrams(sentence: Sentence): List[Sentence] = {
-    val probabilities = combinations(sentenceOccurrences(sentence))
-    print("probabilities: ")
-    println(probabilities)
-    val ret = for (i <- probabilities) yield dictionaryByOccurrences.get(i)
-    println(ret)
+    println(sentence)
+    val o = sentenceOccurrences(sentence)
+    println(o)
+
+    def f(o: Occurrences):  List[(Occurrences, Sentence)] =
+      combinations(o).map(x => dictionaryByOccurrences.get(x) match {
+        case Some(y) => List((x, y))
+        case _ => Nil
+      }).reduceLeft(_ ++ _)
+    println(f(o))
+    println(f(List(('a',1),('m',1),('s',1),('y',1))))
+//    def f2(f_ret: Word, o: Occurrences) : Sentence = o match {
+//
+//    }
     Nil
   }
-
 }
