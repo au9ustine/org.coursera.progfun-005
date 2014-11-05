@@ -34,14 +34,13 @@ object Anagrams {
    *  same character, and are represented as a lowercase character in the occurrence list.
    */
   def wordOccurrences(w: Word): Occurrences = {
-    val symbols = w.toLowerCase
-    val symbol_set = symbols.distinct
-    symbol_set.map(c => (c, symbols.filter(x => x == c).size)).toList.sorted
-  }
+    val lower_w = w.toLowerCase
+    for (i <- lower_w.distinct) yield (i, lower_w.count(_ == i))
+  }.toList.sorted
 
   /** Converts a sentence into its character occurrence list. */
   def sentenceOccurrences(s: Sentence): Occurrences =
-    wordOccurrences(s.foldLeft("")(_.concat(_)))
+    wordOccurrences(s.mkString(""))
 
 
   /** The `dictionaryByOccurrences` is a `Map` from different occurrences to a sequence of all
@@ -59,21 +58,8 @@ object Anagrams {
    *    List(('a', 1), ('e', 1), ('t', 1)) -> Seq("ate", "eat", "tea")
    *
    */
-
-  def dicByOccHelper(keys: List[Word])(ret: Map[Occurrences, List[Word]]) : Map[Occurrences, List[Word]] = keys match{
-    case key :: other_keys => {
-      val computed_o: Occurrences = wordOccurrences(key)
-      ret.get(computed_o) match {
-        case Some(x: List[Word]) =>
-          dicByOccHelper(other_keys)(ret ++ Map(computed_o -> (x ::: key :: Nil))) // update
-        case None =>
-          dicByOccHelper(other_keys)(ret ++ Map(computed_o -> (key :: Nil))) // create
-      }
-    }
-    case Nil => ret
-  } // 1.27s
   lazy val dictionaryByOccurrences: Map[Occurrences, List[Word]] =
-    dictionary.groupBy(x => wordOccurrences(x)) // 1.289s
+    dictionary.groupBy(wordOccurrences(_)) // 1.289s
 
   /** Returns all the anagrams of a given word. */
   def wordAnagrams(word: Word): List[Word] = dictionaryByOccurrences
@@ -111,14 +97,13 @@ object Anagrams {
     s2.size match {
       case 0 => List(Nil)
       case _ => {
-        val s3 = s2.reduceLeft((a,b) => {
-          for(i <- a; j <- b) yield  Set(i, j).flatten
+        val s3 = s2.reduceLeft((a, b) => {
+          for (i <- a; j <- b) yield Set(i, j).flatten
         })
         s3.map(s => s.toList.sorted).toList
       }
     }
-
-  }
+  }.toList
 
   /** Subtracts occurrence list `y` from occurrence list `x`.
    * 
@@ -178,20 +163,72 @@ object Anagrams {
    *  Note: There is only one anagram of an empty sentence.
    */
   def sentenceAnagrams(sentence: Sentence): List[Sentence] = {
-    println(sentence)
-    val o = sentenceOccurrences(sentence)
-    println(o)
 
-    def f(o: Occurrences):  List[(Occurrences, Sentence)] =
-      combinations(o).map(x => dictionaryByOccurrences.get(x) match {
-        case Some(y) => List((x, y))
-        case _ => Nil
-      }).reduceLeft(_ ++ _)
-    println(f(o))
-    println(f(List(('a',1),('m',1),('s',1),('y',1))))
-//    def f2(f_ret: Word, o: Occurrences) : Sentence = o match {
-//
-//    }
+    val ret = for {
+      split <- 1 to sentence.mkString.length
+      prefix = sentence.mkString take split
+      suffix = sentence.mkString drop split
+      prefixRet <- wordAnagrams(prefix)
+      suffixRet <- wordAnagrams(suffix)
+    } yield (prefixRet, suffixRet)
+    println(ret.toList)
     Nil
+
+//    println(sentence)
+//    val o = sentenceOccurrences(sentence)
+//    println(o)
+//
+//    def f(o: Occurrences):  List[(Occurrences, Sentence)] =
+//      combinations(o).map(x => dictionaryByOccurrences.get(x) match {
+//        case Some(y) => List((x, y))
+//        case _ => Nil
+//      }).reduceLeft(_ ++ _)
+//
+//    def g(o: Occurrences, o2s: Map[Occurrences, Sentence])
+//    : List[Sentence] = {
+//      o match {
+//        case Nil => {
+//          println(s"o is not found")
+//          Nil
+//        }
+//        case _ => o2s match {
+//          case x if x.size < 1 => {
+//            println(s"  o2s not found")
+//            Nil
+//          }
+//          case _ => {
+//            for {
+//              i <- o2s.keys
+//            } yield {
+//              println(s"when i = $i")
+//              o2s.get(i) match {
+//                case None => {
+//                  println(s"  o2s.get($i) not found")
+//                  Nil
+//                }
+//                case Some(words) => {
+//                  println(s"  o2s get $i -> $words")
+//                  val rest = subtract(o, i)
+//                  println(s"o-i: $rest")
+//                  val restRet = for {
+//                    word <- words
+//                    restSentence <- g(rest, f(rest).toMap)
+//                  } yield {
+//                    val newSentence = word :: restSentence
+//                    println(s"  word is $word, restSentence is $restSentence, newSentence: $newSentence")
+//                    newSentence
+//                  }
+//                  println(s"  restRet is $restRet")
+//                  restRet
+//                }.foldLeft(List[Word]())(_ ::: _)
+//              }
+//            }
+//          }.toList
+//        }
+//      }
+//    }
+//    val ret = g(o, f(o).toMap)
+//    println(s"Final: $ret")
+//    ret
   }
 }

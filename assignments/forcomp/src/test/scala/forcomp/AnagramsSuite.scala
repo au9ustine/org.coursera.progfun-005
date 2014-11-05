@@ -93,7 +93,7 @@ class AnagramsSuite extends FunSuite {
 
   test("sentenceAnagram") {
     val src = List("Yes", "man")
-    println(sentenceAnagrams(src))
+    sentenceAnagrams(src)
   }
 
   test("sentence anagrams: []") {
