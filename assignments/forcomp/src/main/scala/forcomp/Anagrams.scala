@@ -115,11 +115,10 @@ object Anagrams {
    *  Note: the resulting value is an occurrence - meaning it is sorted
    *  and has no zero-entries.
    */
-  def subtract(x: Occurrences, y: Occurrences): Occurrences = {
-    def f(n: Occurrences): String =
-      n.foldLeft("")((a,b) => a + b._1.toString * b._2)
-    wordOccurrences(f(x).diff(f(y)))
-  }
+  def occurrencesToString(n: Occurrences): String =
+    n.foldLeft("")((a,b) => a + b._1.toString * b._2)
+  def subtract(x: Occurrences, y: Occurrences): Occurrences =
+    wordOccurrences(occurrencesToString(x).diff(occurrencesToString(y)))
 
 
   /** Returns a list of all anagram sentences of the given sentence.
@@ -163,72 +162,20 @@ object Anagrams {
    *  Note: There is only one anagram of an empty sentence.
    */
   def sentenceAnagrams(sentence: Sentence): List[Sentence] = {
+    val lowerSentence = sentence.mkString.toLowerCase
+    for {
+      split <- 1 to lowerSentence.length
+      combinedSentence <- lowerSentence.combinations(split)
+    } yield {
+      val rest = occurrencesToString(subtract(
+        wordOccurrences(lowerSentence),
+        wordOccurrences(combinedSentence)))
+      println(s"split: $split, " +
+        s"prefix: $combinedSentence, " +
+        s"suffix: $rest")
+      combinedSentence
+    }
 
-    val ret = for {
-      split <- 1 to sentence.mkString.length
-      prefix = sentence.mkString take split
-      suffix = sentence.mkString drop split
-      prefixRet <- wordAnagrams(prefix)
-      suffixRet <- wordAnagrams(suffix)
-    } yield (prefixRet, suffixRet)
-    println(ret.toList)
     Nil
-
-//    println(sentence)
-//    val o = sentenceOccurrences(sentence)
-//    println(o)
-//
-//    def f(o: Occurrences):  List[(Occurrences, Sentence)] =
-//      combinations(o).map(x => dictionaryByOccurrences.get(x) match {
-//        case Some(y) => List((x, y))
-//        case _ => Nil
-//      }).reduceLeft(_ ++ _)
-//
-//    def g(o: Occurrences, o2s: Map[Occurrences, Sentence])
-//    : List[Sentence] = {
-//      o match {
-//        case Nil => {
-//          println(s"o is not found")
-//          Nil
-//        }
-//        case _ => o2s match {
-//          case x if x.size < 1 => {
-//            println(s"  o2s not found")
-//            Nil
-//          }
-//          case _ => {
-//            for {
-//              i <- o2s.keys
-//            } yield {
-//              println(s"when i = $i")
-//              o2s.get(i) match {
-//                case None => {
-//                  println(s"  o2s.get($i) not found")
-//                  Nil
-//                }
-//                case Some(words) => {
-//                  println(s"  o2s get $i -> $words")
-//                  val rest = subtract(o, i)
-//                  println(s"o-i: $rest")
-//                  val restRet = for {
-//                    word <- words
-//                    restSentence <- g(rest, f(rest).toMap)
-//                  } yield {
-//                    val newSentence = word :: restSentence
-//                    println(s"  word is $word, restSentence is $restSentence, newSentence: $newSentence")
-//                    newSentence
-//                  }
-//                  println(s"  restRet is $restRet")
-//                  restRet
-//                }.foldLeft(List[Word]())(_ ::: _)
-//              }
-//            }
-//          }.toList
-//        }
-//      }
-//    }
-//    val ret = g(o, f(o).toMap)
-//    println(s"Final: $ret")
-//    ret
   }
 }
