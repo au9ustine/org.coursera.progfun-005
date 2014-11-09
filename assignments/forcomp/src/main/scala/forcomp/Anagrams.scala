@@ -96,12 +96,10 @@ object Anagrams {
     val s2 = s.map(x => x.toSet.subsets.filter(_.size <= 1).toSet).toSet
     s2.size match {
       case 0 => List(Nil)
-      case _ => {
-        val s3 = s2.reduceLeft((a, b) => {
+      case _ =>
+        s2.reduceLeft((a, b) => {
           for (i <- a; j <- b) yield Set(i, j).flatten
-        })
-        s3.map(s => s.toList.sorted).toList
-      }
+        }).map(s => s.toList.sorted).toList
     }
   }.toList
 
@@ -117,8 +115,19 @@ object Anagrams {
    */
   def occurrencesToString(n: Occurrences): String =
     n.foldLeft("")((a,b) => a + b._1.toString * b._2)
+
   def subtract(x: Occurrences, y: Occurrences): Occurrences =
-    wordOccurrences(occurrencesToString(x).diff(occurrencesToString(y)))
+    y.foldLeft(x.toMap) { (last_xmap, y_occurrence) =>
+      val (y_k, y_v) = y_occurrence
+      if (last_xmap.contains(y_k)) {
+        val x_v = last_xmap.apply(y_k)
+        if (x_v - y_v > 0)
+          last_xmap.updated(y_k, x_v - y_v)
+        else
+          last_xmap - y_k
+      } else
+        last_xmap
+    }.toList.sorted
 
 
   /** Returns a list of all anagram sentences of the given sentence.
@@ -161,21 +170,23 @@ object Anagrams {
    *
    *  Note: There is only one anagram of an empty sentence.
    */
-  def sentenceAnagrams(sentence: Sentence): List[Sentence] = {
-    val lowerSentence = sentence.mkString.toLowerCase
-    for {
-      split <- 1 to lowerSentence.length
-      combinedSentence <- lowerSentence.combinations(split)
-    } yield {
-      val rest = occurrencesToString(subtract(
-        wordOccurrences(lowerSentence),
-        wordOccurrences(combinedSentence)))
-      println(s"split: $split, " +
-        s"prefix: $combinedSentence, " +
-        s"suffix: $rest")
-      combinedSentence
+  def sentenceAnagrams(sentence: Sentence): List[Sentence] =  sentence match {
+    case Nil => Nil
+    case _ => {
+      def helper(sentenceOccurrence: Occurrences): List[Sentence] = {
+        if (sentenceOccurrence.size == 0)
+          Nil
+        else {
+          for {
+            prefix <- combinations(sentenceOccurrence)
+            wordA <- wordAnagrams(occurrencesToString(prefix))
+            rest <- helper(subtract(sentenceOccurrence, prefix))
+            _ = println(prefix, wordA, rest)
+          } yield wordA :: rest
+        }.toList
+      }
+      helper(sentenceOccurrences(sentence))
     }
 
-    Nil
   }
 }

@@ -14,3 +14,4 @@ assignments/example/.settings/*
 */**/*.iml
 */**/out/
 */**/*.pdf
+*/**/.worksheet/*
