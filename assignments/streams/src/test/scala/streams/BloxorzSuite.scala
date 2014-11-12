@@ -39,6 +39,46 @@ class BloxorzSuite extends FunSuite {
 
     val optsolution = List(Right, Right, Down, Right, Right, Right, Down)
   }
+  
+  trait Level3 extends SolutionChecker {
+    val level =
+    """---------------  
+      |------ooooooo--
+      |oooo--ooo--oo--
+      |ooooooooo--oooo
+      |oSoo-------ooTo 
+      |oooo-------oooo
+      |------------ooo""".stripMargin
+  }
+  
+  trait Level4 extends SolutionChecker {
+    val level =
+      """---------------  
+      |---ooooooo----
+      |---ooooooo----
+      |oooo-----ooo--
+      |ooo-------oo--
+      |ooo-------oo--
+      |oSo--ooooooooo
+      |ooo--ooooooooo
+      |-----oTo--oooo
+      |-----ooo--oooo""".stripMargin 
+  }
+  
+  trait Level6 extends SolutionChecker {
+    val level =  
+  """---------------
+    |-----oooooo----
+    |-----o--ooo----
+    |-----o--ooooo--
+    |Sooooo-----oooo
+    |----ooo----ooTo
+    |----ooo-----ooo
+    |------o--oo----
+    |------ooooo----
+    |------ooooo----
+    |-------ooo-----""".stripMargin
+  }
 
   test("terrain function level 1") {
     new Level1 {
